@@ -6,5 +6,7 @@ using namespace std;
 
 int main() {
     TicTacToe t;
-    t.Play();
+    // t.Play();
+    cout << ToChar(Solve(t)) << '\n';
+    cout << boards_checked << " boards checked\n";
 }

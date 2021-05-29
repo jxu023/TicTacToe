@@ -45,6 +45,7 @@ public:
 
     // Takes a Coord to make a move.
     void Move(Coord coord);
+    TicTacToe Move(Coord coord) const;
 
     // Checks if Coord is a valid move.
     bool IsValidMove(Coord coord);
@@ -56,6 +57,18 @@ public:
     void Play();
     void PromptMove();
 
+    // Returns a list of all valid moves.
+    vector<Coord> ValidMoves() const;
+
+    Tile Turn() const {
+        return turn;
+    }
+    bool GameOver() const {
+        return game_over;
+    }
+    Tile Winner() const {
+        return winner;
+    }
 private:
     Board b;
     Tile turn;
@@ -63,3 +76,7 @@ private:
     bool game_over;
     Tile winner;
 };
+
+Tile Solve(const TicTacToe& tic_tac_toe);
+char ToChar(Tile t);
+extern int boards_checked;

@@ -121,3 +121,35 @@ void TicTacToe::Play() {
     }
     Show();
 }
+
+vector<Coord> TicTacToe::ValidMoves() const {
+    vector<Coord> ret;
+    // for each valid coord
+    for (int i = 0; i < 3; ++i)
+        for (int j = 0; j < 3; ++j)
+            if (b.b[i][j] == _) // if empty spot
+                ret.push_back({i, j});
+    return ret;
+}
+
+int boards_checked = 0;
+
+Tile Solve(const TicTacToe& tic_tac_toe) {
+    ++boards_checked;
+    if (tic_tac_toe.GameOver())
+        return tic_tac_toe.Winner();
+
+    const Tile color = tic_tac_toe.Turn();
+    bool has_tie = false;
+    for (const Coord m : tic_tac_toe.ValidMoves()) {
+        TicTacToe t = tic_tac_toe;
+        t.Move(m);
+        const Tile result = Solve(t);
+
+        if (result == color)
+            return color;
+        else if (result == _)
+            has_tie = true;
+    }
+    return has_tie ? _ : Opposite(color);
+}
