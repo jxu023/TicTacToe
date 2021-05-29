@@ -132,24 +132,84 @@ vector<Coord> TicTacToe::ValidMoves() const {
     return ret;
 }
 
-int boards_checked = 0;
-
-Tile Solve(const TicTacToe& tic_tac_toe) {
-    ++boards_checked;
+static int tree_level;
+static Tile SolveBaseLogic(const TicTacToe& tic_tac_toe, Tile (&Recurs)(const TicTacToe&)) {
     if (tic_tac_toe.GameOver())
         return tic_tac_toe.Winner();
 
     const Tile color = tic_tac_toe.Turn();
     bool has_tie = false;
+    ++tree_level;
     for (const Coord m : tic_tac_toe.ValidMoves()) {
         TicTacToe t = tic_tac_toe;
         t.Move(m);
-        const Tile result = Solve(t);
+        const Tile result = Recurs(t);
 
         if (result == color)
             return color;
         else if (result == _)
             has_tie = true;
     }
+    --tree_level;
     return has_tie ? _ : Opposite(color);
+}
+
+int boards_checked;
+unordered_map<int, int> boards_at_level;
+
+static Tile CountSolveBase(const TicTacToe& tic_tac_toe, Tile (&Recurs)(const TicTacToe&)) {
+    ++boards_checked;
+    ++boards_at_level[tree_level];
+    return SolveBaseLogic(tic_tac_toe, Recurs);
+}
+
+static Tile SolveBase(const TicTacToe& tic_tac_toe, Tile (&Recurs)(const TicTacToe&)) {
+    tree_level = 0;
+    boards_checked = 0;
+    boards_at_level.clear();
+    return CountSolveBase(tic_tac_toe, Recurs);
+}
+
+Tile SolveNaiveHelper(const TicTacToe& t) {
+    return CountSolveBase(t, SolveNaiveHelper);
+}
+
+Tile SolveNaive(const TicTacToe& tic_tac_toe) {
+    return SolveBase(tic_tac_toe, SolveNaiveHelper);
+}
+
+// consider counting duplicates per level
+int TicTacToe::HashCode() const {
+    // Board has 9 tiles, each tile has 3 possible values. Thus there are only
+    // 3^9 = 19683 possible board states. Let's interpret the board as a base
+    // 3 number and convert to base 10.
+    int hash = 0;
+    int base = 1;
+    for (int i = 0; i < 3; ++i) {
+        for (int j = 0; j < 3; ++j) {
+            hash += b.b[i][j] * base;
+            base *= 3;
+        }
+    }
+    return hash;
+}
+
+// this could also just be an array of size 3^9.
+static unordered_map<int, Tile> memo;
+
+static Tile SolveMemoHelper(const TicTacToe& tic_tac_toe) {
+    const int hash = tic_tac_toe.HashCode();
+    const auto it = memo.find(hash);
+    if (auto it = memo.find(hash); it != memo.end()) {
+        return it->second;
+    }
+    return memo[hash] = CountSolveBase(tic_tac_toe, SolveMemoHelper);
+}
+
+Tile SolveMemo(const TicTacToe& tic_tac_toe) {
+    return SolveBase(tic_tac_toe, SolveMemoHelper);
+}
+
+Tile SolveBottomUp(const TicTacToe& tic_tac_toe) {
+    return _;
 }

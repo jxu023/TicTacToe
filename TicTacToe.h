@@ -1,4 +1,5 @@
 #include <iostream>
+#include <unordered_map>
 #include <vector>
 
 using namespace std;
@@ -60,6 +61,8 @@ public:
     // Returns a list of all valid moves.
     vector<Coord> ValidMoves() const;
 
+    int HashCode() const;
+
     Tile Turn() const {
         return turn;
     }
@@ -77,6 +80,12 @@ private:
     Tile winner;
 };
 
-Tile Solve(const TicTacToe& tic_tac_toe);
 char ToChar(Tile t);
+
 extern int boards_checked;
+extern unordered_map<int, int> boards_at_level;
+
+// It's dynamic programming!
+Tile SolveNaive(const TicTacToe& tic_tac_toe);
+Tile SolveMemo(const TicTacToe& tic_tac_toe);
+Tile SolveBottomUp(const TicTacToe& tic_tac_toe);
