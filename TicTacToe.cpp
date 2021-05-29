@@ -6,18 +6,27 @@ enum Tile : int {
     O,
 };
 
-static char ToChar(Tile t) {
+static Tile Opposite(Tile t) {
+    switch (t) {
+        case X:
+            return O;
+        case O:
+            return X;
+        default:
+            return _;
+    }
+}
+
+char ToChar(Tile t) {
     switch(t) {
-        case _:
-            return '_';
         case X:
             return 'X';
         case O:
             return 'O';
+        case _:
+        default:
+            return '_';
     }
-    cerr << "oh noes!!";
-    exit(1);
-    return 0;
 }
 
 TicTacToe::TicTacToe() {
@@ -51,7 +60,7 @@ void TicTacToe::Show() const {
 
 void TicTacToe::Move(Coord coord) {
     b[coord] = turn;
-    turn = turn == X ? O : X;
+    turn = Opposite(turn);
     ++num_moves;
 
     // update game_over and winner
