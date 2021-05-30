@@ -1,4 +1,5 @@
 #include <iostream>
+#include <functional>
 #include <unordered_map>
 #include <vector>
 
@@ -31,6 +32,9 @@ struct Coord {
 struct Board {
     Tile& operator[](Coord c) {
         return b[c.i][c.j];
+    }
+    const Tile& operator[](Coord c) const {
+        return b.at(c.i).at(c.j);
     }
     vector<vector<Tile>> b;
 };
@@ -79,6 +83,8 @@ private:
     int num_moves;
     bool game_over;
     Tile winner;
+    void ForEachTile(function<void(Coord, Tile)> fn);
+    void ForEachTile(function<void(Coord, Tile)> fn) const;
 };
 
 char ToChar(Tile t);

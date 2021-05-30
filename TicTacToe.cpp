@@ -122,13 +122,30 @@ void TicTacToe::Play() {
     Show();
 }
 
+void TicTacToe::ForEachTile(function<void(Coord, Tile)> fn) {
+    for (int i = 0; i < 3; ++i) {
+        for (int j = 0; j < 3; ++j) {
+            fn({i, j}, b.b[i][j]);
+        }
+    }
+}
+
+// Man .. how do you const cast calling a void function?
+void TicTacToe::ForEachTile(function<void(Coord, Tile)> fn) const {
+    for (int i = 0; i < 3; ++i) {
+        for (int j = 0; j < 3; ++j) {
+            fn({i, j}, b.b[i][j]);
+        }
+    }
+}
+
 vector<Coord> TicTacToe::ValidMoves() const {
     vector<Coord> ret;
     // for each valid coord
-    for (int i = 0; i < 3; ++i)
-        for (int j = 0; j < 3; ++j)
-            if (b.b[i][j] == _) // if empty spot
-                ret.push_back({i, j});
+    ForEachTile([&ret] (Coord c, Tile t) {
+        if (t == _)
+            ret.push_back(c);
+    });
     return ret;
 }
 
@@ -186,12 +203,10 @@ int TicTacToe::HashCode() const {
     // 3 number and convert to base 10.
     int hash = 0;
     int base = 1;
-    for (int i = 0; i < 3; ++i) {
-        for (int j = 0; j < 3; ++j) {
-            hash += b.b[i][j] * base;
-            base *= 3;
-        }
-    }
+    ForEachTile([&] (Coord c, Tile t) {
+        hash += b[c] * base;
+        base *= 3;
+    });
     return hash;
 }
 
@@ -211,13 +226,24 @@ Tile SolveMemo(const TicTacToe& tic_tac_toe) {
     return SolveBase(tic_tac_toe, SolveMemoHelper);
 }
 
-// TODO
 vector<Coord> TicTacToe::ValidUnmoves() const {
-    return {};
+    Tile color = Opposite(turn);
+    vector<Coord> ret;
+    ForEachTile([&] (Coord c, Tile t) {
+        if (t == color)
+            ret.push_back(c);
+    });
+    return ret;
 }
 
-// TODO
 void TicTacToe::Unmove(Coord coord) {
+    Tile color = b[coord];
+    b[coord] = _;
+    turn = color;
+    --num_moves;
+
+    // TODO check conditions for game_over = true -> false
+    // also set winner = _ in that case
 }
 
 // TODO
@@ -225,9 +251,13 @@ static vector<TicTacToe> AllFullBoards() {
     return {};
 }
 
-// TODO
 static void RemoveImpossibleGames(vector<TicTacToe>& games) {
     remove_if(games.begin(), games.end(), [] (const TicTacToe& t) {
+            // TODO Factor out a function.
+            // Given a coord, check if there is a 3-in-a-row for it.
+
+            // TODO If there are two 3-in-a-rows (1 for X, 1 for O) then ret
+            // true.
             return false;
             });
 }
