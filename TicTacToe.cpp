@@ -178,7 +178,7 @@ Tile SolveNaive(const TicTacToe& tic_tac_toe) {
     return SolveBase(tic_tac_toe, SolveNaiveHelper);
 }
 
-// consider counting duplicates per level
+// Consider counting duplicates per level.
 int TicTacToe::HashCode() const {
     // Board has 9 tiles, each tile has 3 possible values. Thus there are only
     // 3^9 = 19683 possible board states. Let's interpret the board as a base
@@ -194,7 +194,7 @@ int TicTacToe::HashCode() const {
     return hash;
 }
 
-// this could also just be an array of size 3^9.
+// This could also just be an array of size 3^9.
 static unordered_map<int, Tile> memo;
 
 static Tile SolveMemoHelper(const TicTacToe& tic_tac_toe) {
