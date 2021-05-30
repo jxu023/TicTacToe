@@ -27,6 +27,9 @@ struct Coord {
         j -= c.j;
         return *this;
     }
+    bool operator==(const Coord c) const {
+        return i == c.i && j == c.j;
+    }
 };
 
 struct Board {
@@ -51,13 +54,15 @@ public:
     // Takes a Coord to make a move.
     void Move(Coord coord);
     vector<Coord> ValidMoves() const;
+    bool IsValidMove(Coord coord) const;
 
     // Undoes a move.
     vector<Coord> ValidUnmoves() const;
     void Unmove(Coord cood);
+    bool IsValidUnmove(Coord coord) const;
+    // Checks if the unmove undoes a win.
+    bool IsUnwin(Coord cood) const;
 
-    // Checks if Coord is a valid move.
-    bool IsValidMove(Coord coord);
     // Checks if Coord is inBounds.
     static bool IsValidCoord(Coord coord);
 
@@ -85,6 +90,7 @@ private:
     Tile winner;
     void ForEachTile(function<void(Coord, Tile)> fn);
     void ForEachTile(function<void(Coord, Tile)> fn) const;
+    int NumWinDirs(Coord coord) const;
 };
 
 char ToChar(Tile t);
@@ -95,4 +101,6 @@ extern unordered_map<int, int> boards_at_level;
 // It's dynamic programming!
 Tile SolveNaive(const TicTacToe& tic_tac_toe);
 Tile SolveMemo(const TicTacToe& tic_tac_toe);
+// Given that bottom up uses memory equivalent to BFS, SolveMemo which uses DFS
+// memory is probably more efficient.
 Tile SolveBottomUp(const TicTacToe& tic_tac_toe);

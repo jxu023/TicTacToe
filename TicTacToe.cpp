@@ -60,15 +60,8 @@ void TicTacToe::Show() const {
     cout << '\n';
 }
 
-void TicTacToe::Move(Coord coord) {
-    b[coord] = turn;
-    turn = Opposite(turn);
-    ++num_moves;
-
-    // update game_over and winner
-    if (num_moves == 9)
-        game_over = true;
-
+int TicTacToe::NumWinDirs(Coord coord) const {
+    int wins = 0;
     // given a slope, get all valid coords along it
     // check horiz -- slope is 0, 1
     // check vert -- slope is 1, 0
@@ -82,16 +75,27 @@ void TicTacToe::Move(Coord coord) {
             ++in_a_row;
         for (nc = coord - dc[k]; IsValidCoord(nc) && b[nc] == color; nc -= dc[k])
             ++in_a_row;
+        if (in_a_row == 3)
+            ++wins;
+    }
+    return wins;
+}
 
-        if (in_a_row == 3) {
-            winner = color;
-            game_over = true;
-            return;
-        }
+void TicTacToe::Move(Coord coord) {
+    b[coord] = turn;
+    turn = Opposite(turn);
+    ++num_moves;
+
+    if (num_moves == 9)
+        game_over = true;
+
+    if (NumWinDirs(coord) > 0) {
+        winner = b[coord];
+        game_over = true;
     }
 }
 
-bool TicTacToe::IsValidMove(Coord coord) {
+bool TicTacToe::IsValidMove(Coord coord) const {
     return IsValidCoord(coord) && b[coord] == _;
 }
 
@@ -226,11 +230,37 @@ Tile SolveMemo(const TicTacToe& tic_tac_toe) {
     return SolveBase(tic_tac_toe, SolveMemoHelper);
 }
 
+bool TicTacToe::IsUnwin(Coord coord) const {
+    Tile t = Opposite(turn);
+    Coord cross_coord;
+    bool cross_win = false;
+    // It's possible there are multiple "separate" wins across the board
+    // In that case each unwin must dismantle one of them.
+    // TODO generalize unwin to dismantle groups (then it'll work on arbitrary
+    // x-in-a-row).
+    ForEachTile([&] (Coord c, Tile tile) {
+        // There are at most 2 wins in a row
+        if (tile == t && NumWinDirs(c) == 2) {
+            cross_win = true;
+            cross_coord = c;
+        }
+    });
+    if (cross_win)
+        return coord == cross_coord;
+    else
+        return NumWinDirs(coord) > 0;
+}
+
+bool TicTacToe::IsValidUnmove(Coord coord) const {
+    return IsValidCoord(coord) && b[coord] == Opposite(turn)
+        && (!game_over || IsUnwin(coord));
+}
+
 vector<Coord> TicTacToe::ValidUnmoves() const {
     Tile color = Opposite(turn);
     vector<Coord> ret;
     ForEachTile([&] (Coord c, Tile t) {
-        if (t == color)
+        if (IsValidUnmove(c))
             ret.push_back(c);
     });
     return ret;
@@ -242,8 +272,13 @@ void TicTacToe::Unmove(Coord coord) {
     turn = color;
     --num_moves;
 
-    // TODO check conditions for game_over = true -> false
-    // also set winner = _ in that case
+    if (game_over) {
+        game_over = false;
+        ForEachTile([&] (Coord c, Tile t) {
+            if (NumWinDirs(c) > 0)
+                game_over = true;
+        });
+    }
 }
 
 // TODO
@@ -251,23 +286,14 @@ static vector<TicTacToe> AllFullBoards() {
     return {};
 }
 
-static void RemoveImpossibleGames(vector<TicTacToe>& games) {
-    remove_if(games.begin(), games.end(), [] (const TicTacToe& t) {
-            // TODO Factor out a function.
-            // Given a coord, check if there is a 3-in-a-row for it.
-
-            // TODO If there are two 3-in-a-rows (1 for X, 1 for O) then ret
-            // true.
-            return false;
-            });
-}
-
+// TODO use the count statistics to validate SolveBottomUp() checks the same
+// nodes per level as SolveMemo().
 Tile SolveBottomUp(const TicTacToe& tic_tac_toe) {
     // TODO only keep results for current level in tree
     unordered_map<int, Tile> hashcode_to_result;
 
     vector<TicTacToe> level = AllFullBoards();
-    RemoveImpossibleGames(level);
+    // alternately we could use AllPossibleBoards() (allows _)
 
     // process states from bottom leaf nodes up to the root
     while (level.size() > 1) {
