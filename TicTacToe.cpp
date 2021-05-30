@@ -139,7 +139,6 @@ static Tile SolveBaseLogic(const TicTacToe& tic_tac_toe, Tile (&Recurs)(const Ti
 
     const Tile color = tic_tac_toe.Turn();
     bool has_tie = false;
-    ++tree_level;
     for (const Coord m : tic_tac_toe.ValidMoves()) {
         TicTacToe t = tic_tac_toe;
         t.Move(m);
@@ -150,7 +149,6 @@ static Tile SolveBaseLogic(const TicTacToe& tic_tac_toe, Tile (&Recurs)(const Ti
         else if (result == _)
             has_tie = true;
     }
-    --tree_level;
     return has_tie ? _ : Opposite(color);
 }
 
@@ -160,7 +158,10 @@ unordered_map<int, int> boards_at_level;
 static Tile CountSolveBase(const TicTacToe& tic_tac_toe, Tile (&Recurs)(const TicTacToe&)) {
     ++boards_checked;
     ++boards_at_level[tree_level];
-    return SolveBaseLogic(tic_tac_toe, Recurs);
+    ++tree_level;
+    Tile ret = SolveBaseLogic(tic_tac_toe, Recurs);
+    --tree_level;
+    return ret;
 }
 
 static Tile SolveBase(const TicTacToe& tic_tac_toe, Tile (&Recurs)(const TicTacToe&)) {
