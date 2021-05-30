@@ -59,4 +59,7 @@ int main() {
     // level 7 checked 1007 boards
     // level 8 checked 373 boards
     // level 9 checked 73 boards
+
+    cout << "Showing all full boards\n";
+    cout << "There are " << t.AllFullBoards().size() << " full boards\n";
 }

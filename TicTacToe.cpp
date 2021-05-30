@@ -281,9 +281,49 @@ void TicTacToe::Unmove(Coord coord) {
     }
 }
 
-// TODO
-static vector<TicTacToe> AllFullBoards() {
-    return {};
+static Tile NextTile(Tile t) {
+    return static_cast<Tile>(static_cast<int>(t)+1);
+}
+
+vector<TicTacToe> TicTacToe::AllFullBoards() const {
+    // for each of 2^9 boards, add them to a list
+    vector<Board> boards;
+    Board initial_board; // TODO Factor out an initial board constructor.
+    initial_board.b = {{_,_,_},
+                       {_,_,_},
+                       {_,_,_}};
+    boards.push_back(initial_board);
+
+    for (Coord c{0, 0}; c != EndCoord(); c = NextValidCoord(c)) {
+        vector<Board> children;
+        for (const Board& parent : boards) {
+            // TODO create a "all possible boards fn" where this loops over=
+            // {X, O, _}
+            for (Tile t : {X, O}) {
+                Board b = parent;
+                b[c] = t;
+                children.push_back(b);
+            }
+        }
+        boards = children;
+    }
+
+    // TODO or just enumerate them in such a way that xcount and ocount are
+    // correct. For each parent, produce a child where one of the *tiles* has
+    // x from x bag and o from o bag.
+    // for each tile, for each {X, O} if !colorbag.empty(), add child.
+
+    // TODO remove boards where not (x.count == 5 and o.count == 4)
+    // remove_if();
+
+    vector<TicTacToe> ret;
+    for (auto it = boards.rbegin(); it != boards.rend(); ++it, boards.pop_back()) {
+        TicTacToe t;
+        t.b = *it;
+        ret.push_back(t);
+    }
+
+    return ret;
 }
 
 // TODO use the count statistics to validate SolveBottomUp() checks the same
@@ -292,7 +332,7 @@ Tile SolveBottomUp(const TicTacToe& tic_tac_toe) {
     // TODO only keep results for current level in tree
     unordered_map<int, Tile> hashcode_to_result;
 
-    vector<TicTacToe> level = AllFullBoards();
+    vector<TicTacToe> level = tic_tac_toe.AllFullBoards();
     // alternately we could use AllPossibleBoards() (allows _)
 
     // process states from bottom leaf nodes up to the root

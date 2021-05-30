@@ -30,6 +30,9 @@ struct Coord {
     bool operator==(const Coord c) const {
         return i == c.i && j == c.j;
     }
+    bool operator!=(const Coord c) const {
+        return i != c.i || j != c.j;
+    }
 };
 
 struct Board {
@@ -48,7 +51,7 @@ public:
     // Reset board to an empty state.
     void Reset();
 
-    // Print the board state.
+    // Print the game state.
     void Show() const;
 
     // Takes a Coord to make a move.
@@ -82,6 +85,21 @@ public:
     Tile Winner() const {
         return winner;
     }
+
+    // TODO factor this into a ForEachCoord() fn
+    Coord NextValidCoord(Coord c) const {
+        if (c.j == 2) {
+            ++c.i;
+            c.j = 0;
+        } else {
+            ++c.j;
+        }
+        return c;
+    }
+    Coord EndCoord() const {
+        return {3, 0};
+    }
+    vector<TicTacToe> AllFullBoards() const;
 private:
     Board b;
     Tile turn;
