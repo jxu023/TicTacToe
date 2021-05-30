@@ -66,10 +66,8 @@ void TicTacToe::Move(Coord coord) {
     ++num_moves;
 
     // update game_over and winner
-    if (num_moves == 9) {
+    if (num_moves == 9)
         game_over = true;
-        winner = _;
-    }
 
     // given a slope, get all valid coords along it
     // check horiz -- slope is 0, 1
@@ -80,9 +78,9 @@ void TicTacToe::Move(Coord coord) {
     for (int k = 0; k < 4; ++k) {
         int in_a_row = 1;
         Coord nc;
-        for (nc = nc + dc[k]; IsValidCoord(nc) && b[nc] == color; nc += dc[k])
+        for (nc = coord + dc[k]; IsValidCoord(nc) && b[nc] == color; nc += dc[k])
             ++in_a_row;
-        for (nc = nc - dc[k]; IsValidCoord(nc) && b[nc] == color; nc -= dc[k])
+        for (nc = coord - dc[k]; IsValidCoord(nc) && b[nc] == color; nc -= dc[k])
             ++in_a_row;
 
         if (in_a_row == 3) {

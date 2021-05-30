@@ -6,7 +6,6 @@ using namespace std;
 
 int main() {
     TicTacToe t;
-    // t.Play();
     cout << ToChar(SolveNaive(t)) << '\n';
     cout << boards_checked << " boards checked by SolveNaive.\n";
     for (int i = 0; i < 10; ++i) {
@@ -28,6 +27,20 @@ int main() {
     //
     // Taking the sum of all nodes in the tree, we get a total of 986,410
     // note, levels 8 and 9 have the same number of nodes.
+    // This happens if the only way to end a game is by filling up the board.
+    // With 3-in-a-row, we get this instead:
+    //
+    // 94978 boards checked by SolveNaive.
+    // level 0 checked 1 boards
+    // level 1 checked 9 boards
+    // level 2 checked 72 boards
+    // level 3 checked 280 boards
+    // level 4 checked 1511 boards
+    // level 5 checked 4380 boards
+    // level 6 checked 12483 boards
+    // level 7 checked 24327 boards
+    // level 8 checked 30655 boards
+    // level 9 checked 21260 boards
 
     cout << ToChar(SolveMemo(t)) << '\n';
     cout << boards_checked << " boards checked by SolveMemo.\n";
@@ -35,16 +48,15 @@ int main() {
         cout << "level " << i << " checked " << boards_at_level[i] << " boards\n";
     }
     cout << endl;
-    // 6046 boards checked
+    // 4804 boards checked by SolveMemo.
     // level 0 checked 1 boards
     // level 1 checked 9 boards
     // level 2 checked 72 boards
-    // level 3 checked 252 boards
-    // level 4 checked 756 boards
-    // level 5 checked 1260 boards
-    // level 6 checked 1680 boards
-    // level 7 checked 1260 boards
-    // level 8 checked 630 boards
-    // level 9 checked 126 boards
-    // Looks like we started getting duplicates previously at level 3
+    // level 3 checked 205 boards
+    // level 4 checked 688 boards
+    // level 5 checked 1008 boards
+    // level 6 checked 1368 boards
+    // level 7 checked 1007 boards
+    // level 8 checked 373 boards
+    // level 9 checked 73 boards
 }
