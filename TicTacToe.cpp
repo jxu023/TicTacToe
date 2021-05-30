@@ -1,3 +1,5 @@
+#include <algorithm>
+
 #include "TicTacToe.h"
 
 enum Tile : int {
@@ -211,6 +213,52 @@ Tile SolveMemo(const TicTacToe& tic_tac_toe) {
     return SolveBase(tic_tac_toe, SolveMemoHelper);
 }
 
+// TODO
+vector<Coord> TicTacToe::ValidUnmoves() const {
+    return {};
+}
+
+// TODO
+void TicTacToe::Unmove(Coord coord) {
+}
+
+// TODO
+static vector<TicTacToe> AllFullBoards() {
+    return {};
+}
+
+// TODO
+static void RemoveImpossibleGames(vector<TicTacToe>& games) {
+    remove_if(games.begin(), games.end(), [] (const TicTacToe& t) {
+            return false;
+            });
+}
+
 Tile SolveBottomUp(const TicTacToe& tic_tac_toe) {
+    // TODO only keep results for current level in tree
+    unordered_map<int, Tile> hashcode_to_result;
+
+    vector<TicTacToe> level = AllFullBoards();
+    RemoveImpossibleGames(level);
+
+    // process states from bottom leaf nodes up to the root
+    while (level.size() > 1) {
+        unordered_map<int, TicTacToe> parents; // parent hashcode to parent game
+
+        for (const TicTacToe& child : level) {
+            for (Coord c : child.ValidUnmoves()) {
+                TicTacToe p = child;
+                p.Unmove(c);
+                if (parents.find(p.HashCode()) == parents.end())
+                    parents[p.HashCode()] = p;
+
+                // TODO update p's result
+            }
+        }
+
+        level.clear();
+        for (auto& [hash, p] : parents)
+            level.push_back(p);
+    }
     return _;
 }
