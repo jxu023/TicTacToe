@@ -62,4 +62,8 @@ int main() {
 
     cout << "Showing all full boards\n";
     cout << "There are " << t.AllFullBoards().size() << " full boards\n";
+    // for (auto tt : t.AllFullBoards()) {
+    //     tt.Show();
+    //     cout << endl;
+    // }
 }

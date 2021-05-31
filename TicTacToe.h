@@ -43,6 +43,10 @@ struct Board {
         return b.at(c.i).at(c.j);
     }
     vector<vector<Tile>> b;
+    Board(int m, int n) {
+        b.resize(m, vector<Tile>(n, static_cast<Tile>(0)));
+    }
+    Board() {}
 };
 
 class TicTacToe {
@@ -86,19 +90,6 @@ public:
         return winner;
     }
 
-    // TODO factor this into a ForEachCoord() fn
-    Coord NextValidCoord(Coord c) const {
-        if (c.j == 2) {
-            ++c.i;
-            c.j = 0;
-        } else {
-            ++c.j;
-        }
-        return c;
-    }
-    Coord EndCoord() const {
-        return {3, 0};
-    }
     vector<TicTacToe> AllFullBoards() const;
 private:
     Board b;
